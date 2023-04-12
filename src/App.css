@@ -8,3 +8,13 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
 }
+
+.App-footer {
+  font-size: 10px;
+  color: black;
+}
+
+.App-footer > a {
+  padding-bottom: 10px;
+  color:darkslategrey;
+}

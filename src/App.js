@@ -8,6 +8,7 @@ import { Avatar } from '@mui/material';
 import { Container } from '@mui/system';
 import { Grid } from '@mui/material';
 import { FormControl } from '@mui/material';
+import assistant from './assistant.png';
 // import { Button } from '@mui/material';
 
 
@@ -86,6 +87,9 @@ function App() {
             submitUserMessage={submitUserMessage} />
         </Container>
       </header>
+      <footer className="App-footer">
+        <a href="https://www.flaticon.com/free-icons/avatar" title="avatar icons">Avatar icons created by Freepik - Flaticon</a>
+      </footer>
     </div>
   );
 }
@@ -106,7 +110,8 @@ function Messages(props) {
               bgcolor: message.role === "assistant" ? assistantBackground : userBackground
             }}>
             <ListItemAvatar>
-              <Avatar alt={message.role.toUpperCase()} src="/static/images/avatar/{message.role}.jpg"/>
+              {/* <Avatar alt={message.role.toUpperCase()} src="/static/images/avatar/{message.role}.jpg"/> */}
+              <Avatar alt={message.role.toUpperCase()} src={message.role === "assistant" ? assistant : null}/>
             </ListItemAvatar>
             <ListItemText
               primary={message.content}>
