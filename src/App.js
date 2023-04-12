@@ -60,7 +60,10 @@ function App() {
         // catch parsing errors
         const newMessages = await response.json();
         setMessages(newMessages);
-        setUserMessage("");
+        setUserMessage({
+          role: "user",
+          content: "",
+        });
       } catch (error) {
         console.log("error: ", error);
       }
