@@ -49,11 +49,23 @@ function App() {
 
   const submitUserMessage = async () => {
     try {
-      const response = await fetch("./.netlify/functions/submitUserMessage");
-      const newMessages = await response.json();
-      setMessages(newMessages);
-      setUserMessage("");
+      const response = await fetch("./.netlify/functions/submitUserMessage", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([...messages, userMessage]),
+      });
+      try {
+        // catch parsing errors
+        const newMessages = await response.json();
+        setMessages(newMessages);
+        setUserMessage("");
+      } catch (error) {
+        console.log("error: ", error);
+      }
     } catch (error) {
+      // catch network errors
       console.log("error: ", error);
     }
   }
