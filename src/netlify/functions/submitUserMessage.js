@@ -6,23 +6,26 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
+/*
+const response = await fetch(endpoint);
+response.json() // response body
+*/
 exports.handler = async function (event) {
   const messages = JSON.parse(event.body);
-  openai.createChatCompletion({
+  const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
-    messages: JSON.parse(event.body),
-  })
-    .then((response) => {
-      const assistantMessage = response.data.choices[0].message;
-      return {
-        statusCode: 200,
-        body: JSON.stringify([...messages, assistantMessage]),
-      }
-    })
-    .catch((response) => {
-      return {
-        statusCode: 400,
-        body: JSON.stringify(response), // TODO: extract meaningful info...
-      }
-    })
+    messages: messages,
+  });
+  if (response.status === 200) {
+    const assistantMessage = response.data.choices[0].message;
+    return {
+      statusCode: 200,
+      body: JSON.stringify([...messages, assistantMessage]),
+    }
+  } else {
+    return {
+      statusCode: response.status,
+      body: response.statusText, 
+    }
+  }
 };

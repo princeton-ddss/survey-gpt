@@ -48,9 +48,16 @@ function App() {
   });
 
   const submitUserMessage = () => {
-    const url = `${process.env.DEPLOY_URL}/.netlify/functions/submitUserMessage`; // TODO: or DEPLOY_URL?
+    const url = `${process.env.DEPLOY_URL}/.netlify/functions/submitUserMessage`;
     console.log("submitUserMessage: ", userMessage, " -> ", url);
-    // TODO: fetch the endpoint (messages = [...messages, userMessage])
+    fetch(url)
+      .then((response) => {
+        setMessages(response.json());
+        setUserMessage("");
+      })
+      .catch((response) => {
+        console.log("error: ", response.statusCode); // TODO: alert user...
+      })
   }
 
   return (
