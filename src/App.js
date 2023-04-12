@@ -128,14 +128,16 @@ function Input(props) {
     <div>
       <Grid
         container
+        columns={24}
         sx={{
           'paddingTop': 2,
         }}
         spacing={2}>
         
+        <Grid item xs={1}></Grid>
         <Grid
           item
-          xs={12}>
+          xs={22}>
             <FormControl fullWidth>
               <TextField
                 variant="outlined"
@@ -156,6 +158,7 @@ function Input(props) {
               </TextField>
             </FormControl>
         </Grid>
+        <Grid item xs={1}></Grid>
 
         {/* <Grid
           item
