@@ -47,17 +47,15 @@ function App() {
     content: "",
   });
 
-  const submitUserMessage = () => {
-    const url = `${process.env.DEPLOY_URL}/.netlify/functions/submitUserMessage`;
-    console.log("submitUserMessage: ", userMessage, " -> ", url);
-    fetch(url)
-      .then((response) => {
-        setMessages(response.json());
-        setUserMessage("");
-      })
-      .catch((response) => {
-        console.log("error: ", response.statusCode); // TODO: alert user...
-      })
+  const submitUserMessage = async () => {
+    try {
+      const response = await fetch("./.netlify/functions/submitUserMessage");
+      const newMessages = await response.json();
+      setMessages(newMessages);
+      setUserMessage("");
+    } catch (error) {
+      console.log("error: ", error);
+    }
   }
 
   return (

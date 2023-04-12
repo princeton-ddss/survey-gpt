@@ -6,10 +6,6 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-/*
-const response = await fetch(endpoint);
-response.json() // response body
-*/
 exports.handler = async function (event) {
   const messages = JSON.parse(event.body);
   const response = await openai.createChatCompletion({
