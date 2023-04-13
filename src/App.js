@@ -42,7 +42,7 @@ const instructions = {
 
 const initMessage = {
   role: "assistant",
-  content: "Hello! I'm an SurveyGPT, an automated survey assistant. I'm going to be asking you a few questions about your political opinions today. Are you ready to begin?",
+  content: "Hello! I'm SurveyGPT, an automated survey assistant based on ChatGPT. I'm going to be asking you a few questions about your political opinions today. Are you ready to begin?",
 }
 
 function App() {
