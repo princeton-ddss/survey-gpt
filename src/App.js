@@ -9,8 +9,12 @@ import { Container } from '@mui/system';
 import { Grid } from '@mui/material';
 import { FormControl } from '@mui/material';
 import { TextField } from '@mui/material';
+import { Box } from '@mui/material';
+import { Alert } from '@mui/material';
+import { IconButton } from '@mui/material';
+import { Collapse } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import assistant from './assistant.png';
-// import { Button } from '@mui/material';
 
 
 const instructions = {
@@ -46,6 +50,7 @@ function App() {
   const [ messages, setMessages ] = React.useState([instructions, initMessage]);
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
+  const [ errorState, setErrorState ] = React.useState({networkError: null});
 
   const submitUserMessage = async () => {
     setIsLoading(true);
@@ -63,7 +68,7 @@ function App() {
     } catch (error) {
       console.log(`error: failed to reach openai (${error})`);
       setMessages(messages.slice(0, messages.length)); // pop userMessage
-      // TODO: create an Alert
+      setErrorState({networkError: "yes"});
     }
     setIsLoading(false);
     setUserMessage({
@@ -84,7 +89,9 @@ function App() {
             setUserMessage={setUserMessage}
             userMessage={userMessage}
             submitUserMessage={submitUserMessage}
-            isLoading={isLoading} />
+            isLoading={isLoading}
+            errorState={errorState}
+            setErrorState={setErrorState} />  
         </Container>
       </header>
       <footer className="App-footer">
@@ -125,7 +132,29 @@ function Messages(props) {
 function Input(props) {
   return (
     <div className="Input">
-      
+
+      <Grid
+        container
+        columns={24}
+        sx={{
+          'paddingTop': 2,
+        }}
+        spacing={2}>
+        
+        <Grid item xs={1}></Grid>
+        <Grid
+          item
+          xs={22}>
+            <FormControl fullWidth>
+              <NetworkError 
+                errorState={props.errorState}
+                setErrorState={props.setErrorState} />
+            </FormControl>
+        </Grid>
+        <Grid item xs={1}></Grid>
+
+      </Grid>
+
       <Grid
         container
         columns={24}
@@ -201,6 +230,36 @@ function Input(props) {
       )}
     </div>
   )
+}
+
+function NetworkError(props) {
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      <Collapse in={props.errorState.networkError !== null}>
+        <Alert
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                console.log(props.errorState);
+                props.setErrorState({networkError: null});
+                console.log(props.errorState);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          severity="error"
+          sx={{ mb: 2 }}
+        >
+          Error {props.errorState.networkError}
+        </Alert>
+      </Collapse>
+    </Box>
+  );
 }
 
 export default App;
