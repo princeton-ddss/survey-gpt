@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { List, TextField } from '@mui/material';
+import { LinearProgress, List } from '@mui/material';
 import { ListItem } from '@mui/material';
 import { ListItemText } from '@mui/material';
 import { ListItemAvatar } from '@mui/material';
@@ -8,6 +8,7 @@ import { Avatar } from '@mui/material';
 import { Container } from '@mui/system';
 import { Grid } from '@mui/material';
 import { FormControl } from '@mui/material';
+import { TextField } from '@mui/material';
 import assistant from './assistant.png';
 // import { Button } from '@mui/material';
 
@@ -43,12 +44,12 @@ const initMessage = {
 function App() {
 
   const [ messages, setMessages ] = React.useState([instructions, initMessage]);
-  const [ userMessage, setUserMessage ] = React.useState({
-    role: "user",
-    content: "",
-  });
+  const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
+  const [ isLoading, setIsLoading ] = React.useState(false);
 
   const submitUserMessage = async () => {
+    setIsLoading(true);
+    setMessages([...messages, userMessage]);
     try {
       const response = await fetch("./.netlify/functions/submitUserMessage", {
         method: "POST",
@@ -57,21 +58,18 @@ function App() {
         },
         body: JSON.stringify([...messages, userMessage]),
       });
-      try {
-        // catch parsing errors
-        const newMessages = await response.json();
-        setMessages(newMessages);
-        setUserMessage({
-          role: "user",
-          content: "",
-        });
-      } catch (error) {
-        console.log("error: ", error);
-      }
+      const newMessages = await response.json();
+      setMessages(newMessages);
     } catch (error) {
-      // catch network errors
-      console.log("error: ", error);
+      console.log(`error: failed to reach openai (${error})`);
+      setMessages(messages.slice(0, messages.length)); // pop userMessage
+      // TODO: create an Alert
     }
+    setIsLoading(false);
+    setUserMessage({
+      role: "user",
+      content: "",
+    });
   }
 
   return (
@@ -79,12 +77,14 @@ function App() {
       <header className="App-header">
         <Container disableGutters={true} maxWidth={false}>
           <p>Welcome to SurveyGPT!</p>
-          <Messages messages={messages}/>
+          <Messages
+            messages={messages} />
           <Input
             setMessages={setMessages}
             setUserMessage={setUserMessage}
             userMessage={userMessage}
-            submitUserMessage={submitUserMessage} />
+            submitUserMessage={submitUserMessage}
+            isLoading={isLoading} />
         </Container>
       </header>
       <footer className="App-footer">
@@ -110,7 +110,6 @@ function Messages(props) {
               bgcolor: message.role === "assistant" ? assistantBackground : userBackground
             }}>
             <ListItemAvatar>
-              {/* <Avatar alt={message.role.toUpperCase()} src="/static/images/avatar/{message.role}.jpg"/> */}
               <Avatar alt={message.role.toUpperCase()} src={message.role === "assistant" ? assistant : null}/>
             </ListItemAvatar>
             <ListItemText
@@ -125,7 +124,8 @@ function Messages(props) {
 
 function Input(props) {
   return (
-    <div>
+    <div className="Input">
+      
       <Grid
         container
         columns={24}
@@ -178,7 +178,27 @@ function Input(props) {
             </FormControl>
           </Grid> */}
 
+      </Grid>
+      
+      {props.isLoading && (
+        <Grid
+          container
+          columns={24}
+          sx={{
+            'paddingTop': 2,
+          }}
+          spacing={2}>
+          <Grid item xs={1}></Grid>
+          <Grid
+            item
+            xs={22}>
+              <FormControl fullWidth>
+                <LinearProgress></LinearProgress>
+              </FormControl>
+          </Grid>
+          <Grid item xs={1}></Grid>
         </Grid>
+      )}
     </div>
   )
 }
