@@ -103,7 +103,7 @@ function App() {
 
 function Messages(props) {
 
-  const assistantBackground = 'rgb(240, 240, 240)';
+  const assistantBackground = 'rgb(247, 247, 247)';
   const userBackground = 'rgb(255, 255, 255)';
 
   return (
