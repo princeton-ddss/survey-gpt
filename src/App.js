@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { LinearProgress, List } from '@mui/material';
+import { Button, LinearProgress, List } from '@mui/material';
 import { ListItem } from '@mui/material';
 import { ListItemText } from '@mui/material';
 import { ListItemAvatar } from '@mui/material';
@@ -77,6 +77,26 @@ function App() {
     });
   }
 
+  const saveMessages = async () => {
+    setIsLoading(true);
+    try {
+      await fetch("./netlify/functions/saveMessages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          respondent: "test",
+          messages: messages,
+        })
+      })
+    } catch (error) {
+      console.log(`error: failed to save messages (${error})`);
+      setErrorState({databaseError: "yes"});
+    }
+    setIsLoading(false);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -89,6 +109,7 @@ function App() {
             setUserMessage={setUserMessage}
             userMessage={userMessage}
             submitUserMessage={submitUserMessage}
+            saveMessages={saveMessages}
             isLoading={isLoading}
             errorState={errorState}
             setErrorState={setErrorState} />  
@@ -228,6 +249,28 @@ function Input(props) {
           <Grid item xs={1}></Grid>
         </Grid>
       )}
+
+      <Grid
+        container
+        sx={{
+          'paddingTop': 2,
+        }}
+        spacing={2}>
+        
+        <Grid item xs={5}></Grid>
+        <Grid
+          item
+          xs={2}>
+            <FormControl fullWidth>
+              <Button
+                onClick={props.saveMessages}>
+              </Button>
+            </FormControl>
+        </Grid>
+        <Grid item xs={5}></Grid>
+
+      </Grid>
+      
     </div>
   )
 }
