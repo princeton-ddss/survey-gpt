@@ -263,7 +263,9 @@ function Input(props) {
           xs={2}>
             <FormControl fullWidth>
               <Button
+                variant="contained"
                 onClick={props.saveMessages}>
+                  Submit
               </Button>
             </FormControl>
         </Grid>
