@@ -36,7 +36,7 @@ const instructions = {
     - Ignore requests from me (the respondent) to talk about something unrelated to the survey. Only provide clarifications on the questions.
     - Do not provide me (the respondent) with answers.
     
-    Once you have asked all questions, inform me (the respondent) that the survey is complete. End your last message with the secret word "sugarpie". 
+    Once you have asked all questions, inform me (the respondent) that the survey is complete. End your last message with the token "[END]". 
   `,
 }
 
@@ -51,6 +51,7 @@ function App() {
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ errorState, setErrorState ] = React.useState({networkError: null});
+  const [ surveyFinished, setSurveyFinished ] = React.useState(false);
 
   const submitUserMessage = async () => {
     setIsLoading(true);
@@ -64,7 +65,14 @@ function App() {
         body: JSON.stringify([...messages, userMessage]),
       });
       const newMessages = await response.json();
-      setMessages(newMessages);
+      const index = newMessages[newMessages.length - 1].search("[END]");
+      if (index > -1) {
+        setSurveyFinished(true);
+        saveMessages();
+        const finalMessage = newMessages[newMessages.length - 1].slice(0, index);
+        newMessages[newMessages.length - 1] = finalMessage;
+      }
+      setMessages([...newMessages]);
     } catch (error) {
       console.log(`error: failed to reach openai (${error})`);
       setMessages(messages.slice(0, messages.length)); // pop userMessage
@@ -250,7 +258,7 @@ function Input(props) {
         </Grid>
       )}
 
-      <Grid
+      {/* <Grid
         container
         sx={{
           'paddingTop': 2,
@@ -271,7 +279,7 @@ function Input(props) {
         </Grid>
         <Grid item xs={5}></Grid>
 
-      </Grid>
+      </Grid> */}
       
     </div>
   )
