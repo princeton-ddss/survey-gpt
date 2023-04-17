@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { Button, LinearProgress, List } from '@mui/material';
+import { LinearProgress, List } from '@mui/material';
 import { ListItem } from '@mui/material';
 import { ListItemText } from '@mui/material';
 import { ListItemAvatar } from '@mui/material';
@@ -68,11 +68,13 @@ function App() {
       const index = newMessages[newMessages.length - 1].search("[END]");
       if (index > -1) {
         setSurveyFinished(true);
-        saveMessages();
+        console.log(surveyFinished);
         const finalMessage = newMessages[newMessages.length - 1].slice(0, index);
-        newMessages[newMessages.length - 1] = finalMessage;
+        setMessages([...messages, finalMessage]);
+        saveMessages();
+      } else {
+        setMessages([...newMessages]);
       }
-      setMessages([...newMessages]);
     } catch (error) {
       console.log(`error: failed to reach openai (${error})`);
       setMessages(messages.slice(0, messages.length)); // pop userMessage
