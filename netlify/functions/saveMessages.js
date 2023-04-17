@@ -42,11 +42,6 @@ exports.handler = async function (event) {
             body: JSON.stringify(response),
         }
     } catch (error) {
-        console.error(
-            'Error: [%s] %s: %s',
-            error.name,
-            error.message,
-            error.errors()[0].description,
-        )
+        console.error(`Error [${error.name}]: ${error.message}`);
     }
 }
