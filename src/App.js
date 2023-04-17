@@ -65,11 +65,14 @@ function App() {
         body: JSON.stringify([...messages, userMessage]),
       });
       const newMessages = await response.json();
-      const index = newMessages[newMessages.length - 1].search("[END]");
+      const index = newMessages[newMessages.length - 1].content.search("[END]");
       if (index > -1) {
         setSurveyFinished(true);
         console.log(surveyFinished);
-        const finalMessage = newMessages[newMessages.length - 1].slice(0, index);
+        const finalMessage = {
+          role: newMessages[newMessages.length - 1].role,
+          content: newMessages[newMessages.length - 1].content.slice(0, index)
+        };
         setMessages([...messages, finalMessage]);
         saveMessages();
       } else {
