@@ -80,7 +80,7 @@ function App() {
   const saveMessages = async () => {
     setIsLoading(true);
     try {
-      await fetch("./netlify/functions/saveMessages", {
+      await fetch("./.netlify/functions/saveMessages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
