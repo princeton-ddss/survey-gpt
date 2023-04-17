@@ -87,7 +87,7 @@ function App() {
         },
         body: JSON.stringify({
           respondent: "test",
-          messages: messages,
+          messages: messages.slice(1), // skip initial system message
         })
       })
     } catch (error) {
