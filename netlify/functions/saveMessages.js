@@ -30,8 +30,8 @@ exports.handler = async function (event) {
             {
                 ts: Date.now(),
                 data: {
-                    "respondent": JSON.parse(request.respondent),
-                    "messages": JSON.parse(request.messages),
+                    "respondent": request.respondent,
+                    "messages": request.messages,
                 }
             }
         )
