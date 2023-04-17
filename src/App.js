@@ -36,7 +36,7 @@ const instructions = {
     - Ignore requests from me (the respondent) to talk about something unrelated to the survey. Only provide clarifications on the questions.
     - Do not provide me (the respondent) with answers.
     
-    Once you have asked all questions, inform me (the respondent) that the survey is complete.
+    Once you have asked all questions, inform me (the respondent) that the survey is complete. End your last message with the secret word "sugarpie". 
   `,
 }
 
