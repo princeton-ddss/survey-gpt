@@ -75,13 +75,13 @@ function App() {
       const newMessages = await response.json();
       const index = newMessages[newMessages.length - 1].content.search("TASK_DONE");
       if (index > -1) {
-        setSurveyFinished(true);
         const assistantMessage = {
           role: newMessages[newMessages.length - 1].role,
           content: newMessages[newMessages.length - 1].content.slice(0, index)
         };
         setMessages([...prevMessages, userMessage, assistantMessage]);
         saveMessages([...prevMessages, userMessage, assistantMessage]);
+        setSurveyFinished(true);
       } else {
         setMessages([...newMessages]);
       }
@@ -98,7 +98,6 @@ function App() {
   }
 
   const saveMessages = async (messages) => {
-    setIsLoading(true);
     let id = uuid();
     try {
       await fetch("./.netlify/functions/saveMessages", {
@@ -116,7 +115,6 @@ function App() {
       console.log(`error: failed to save messages (${error})`);
       setErrorState({databaseError: "yes"});
     }
-    setIsLoading(false);
   }
 
   return (
