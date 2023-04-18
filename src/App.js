@@ -56,7 +56,8 @@ function App() {
 
   const submitUserMessage = async () => {
     setIsLoading(true);
-    setMessages([...messages, userMessage]);
+    const prevMessages = messages.slice();
+    setMessages([...prevMessages, userMessage]);
     try {
       const response = await fetch("./.netlify/functions/submitUserMessage", {
         method: "POST",
@@ -75,10 +76,10 @@ function App() {
           role: newMessages[newMessages.length - 1].role,
           content: newMessages[newMessages.length - 1].content.slice(0, index)
         };
-        setMessages([...messages, userMessage, finalMessage]);
-        saveMessages([...messages, userMessage, finalMessage]);
+        setMessages([...prevMessages, userMessage, finalMessage]);
+        saveMessages([...prevMessages, userMessage, finalMessage]);
       } else {
-        setMessages(newMessages);
+        setMessages([...newMessages]);
       }
     } catch (error) {
       console.log(`error: failed to reach openai (${error})`);
