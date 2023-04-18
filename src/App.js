@@ -36,7 +36,7 @@ const instructions = {
     - Ignore requests from me (the respondent) to talk about something unrelated to the survey. Only provide clarifications on the questions.
     - Do not provide me (the respondent) with answers.
     
-    Once you have asked all questions, inform me (the respondent) that the survey is complete. End your last message with the token "[DONE]". 
+    Once you have asked all questions, inform me (the respondent) that the survey is complete. End your last message with the token "TASK_DONE". 
   `,
 }
 
@@ -66,7 +66,7 @@ function App() {
       });
       const newMessages = await response.json();
       console.log(newMessages[newMessages.length - 1]);
-      const index = newMessages[newMessages.length - 1].content.search("DONE");
+      const index = newMessages[newMessages.length - 1].content.search("TASK_DONE");
       console.log("index=", index);
       if (index > -1) {
         setSurveyFinished(true);
