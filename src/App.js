@@ -13,7 +13,12 @@ import { Box } from '@mui/material';
 import { Alert } from '@mui/material';
 import { IconButton } from '@mui/material';
 import { Collapse } from '@mui/material';
+import { Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 import { v4 as uuid } from 'uuid';
 import assistant from './assistant.png';
 
@@ -53,6 +58,7 @@ function App() {
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ errorState, setErrorState ] = React.useState({networkError: null});
   const [ surveyFinished, setSurveyFinished ] = React.useState(false);
+  const [ sessionId, setSessionId ] = React.useState(null);
 
   const submitUserMessage = async () => {
     setIsLoading(true);
@@ -93,6 +99,7 @@ function App() {
 
   const saveMessages = async (messages) => {
     setIsLoading(true);
+    let id = uuid();
     try {
       await fetch("./.netlify/functions/saveMessages", {
         method: "POST",
@@ -100,10 +107,11 @@ function App() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          session: uuid(),
+          session: id,
           messages: messages.slice(1), // skip initial system message
         })
       })
+      setSessionId(id);
     } catch (error) {
       console.log(`error: failed to save messages (${error})`);
       setErrorState({databaseError: "yes"});
@@ -126,7 +134,11 @@ function App() {
             saveMessages={saveMessages}
             isLoading={isLoading}
             errorState={errorState}
-            setErrorState={setErrorState} />)} 
+            setErrorState={setErrorState} />)}
+          {surveyFinished && (<Typography variant="body2" marginTop={5}>
+              <em>Thank you for completing the survey! Your survey identification code is: </em>{sessionId}.
+            </Typography>
+          )}
         </Container>
       </header>
       <footer className="App-footer">
