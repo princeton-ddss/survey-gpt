@@ -56,7 +56,7 @@ function App() {
 
   const submitUserMessage = async () => {
     setIsLoading(true);
-    const prevMessages = messages.slice();
+    const prevMessages = [...messages];
     setMessages([...prevMessages, userMessage]);
     try {
       const response = await fetch("./.netlify/functions/submitUserMessage", {
@@ -67,17 +67,15 @@ function App() {
         body: JSON.stringify([...messages, userMessage]),
       });
       const newMessages = await response.json();
-      console.log(newMessages[newMessages.length - 1]);
       const index = newMessages[newMessages.length - 1].content.search("TASK_DONE");
-      console.log("index=", index);
       if (index > -1) {
         setSurveyFinished(true);
-        const finalMessage = {
+        const assistantMessage = {
           role: newMessages[newMessages.length - 1].role,
           content: newMessages[newMessages.length - 1].content.slice(0, index)
         };
-        setMessages([...prevMessages, userMessage, finalMessage]);
-        saveMessages([...prevMessages, userMessage, finalMessage]);
+        setMessages([...prevMessages, userMessage, assistantMessage]);
+        saveMessages([...prevMessages, userMessage, assistantMessage]);
       } else {
         setMessages([...newMessages]);
       }
