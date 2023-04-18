@@ -75,7 +75,7 @@ function App() {
           role: newMessages[newMessages.length - 1].role,
           content: newMessages[newMessages.length - 1].content.slice(0, index)
         };
-        setMessages([...messages, finalMessage]);
+        setMessages([...messages, userMessage, finalMessage]);
         saveMessages();
       } else {
         setMessages(newMessages);
