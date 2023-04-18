@@ -66,7 +66,7 @@ function App() {
       });
       const newMessages = await response.json();
       console.log(newMessages[newMessages.length - 1]);
-      const index = newMessages[newMessages.length - 1].content.search("\[DONE\]");
+      const index = newMessages[newMessages.length - 1].content.search("DONE");
       console.log("index=", index);
       if (index > -1) {
         setSurveyFinished(true);
