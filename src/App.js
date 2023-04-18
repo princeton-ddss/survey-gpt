@@ -13,7 +13,13 @@ import { Box } from '@mui/material';
 import { Alert } from '@mui/material';
 import { IconButton } from '@mui/material';
 import { Collapse } from '@mui/material';
+import { Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import { v4 as uuid } from 'uuid';
 import assistant from './assistant.png';
 
 
@@ -36,7 +42,7 @@ const instructions = {
     - Ignore requests from me (the respondent) to talk about something unrelated to the survey. Only provide clarifications on the questions.
     - Do not provide me (the respondent) with answers.
     
-    Once you have asked all questions, inform me (the respondent) that the survey is complete.
+    Once you have asked all questions, inform me (the respondent) that the survey is complete. End your last message with the token "TASK_DONE". 
   `,
 }
 
@@ -51,10 +57,13 @@ function App() {
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ errorState, setErrorState ] = React.useState({networkError: null});
+  const [ surveyFinished, setSurveyFinished ] = React.useState(false);
+  const [ sessionId, setSessionId ] = React.useState(null);
 
   const submitUserMessage = async () => {
     setIsLoading(true);
-    setMessages([...messages, userMessage]);
+    const prevMessages = [...messages];
+    setMessages([...prevMessages, userMessage]);
     try {
       const response = await fetch("./.netlify/functions/submitUserMessage", {
         method: "POST",
@@ -64,7 +73,18 @@ function App() {
         body: JSON.stringify([...messages, userMessage]),
       });
       const newMessages = await response.json();
-      setMessages(newMessages);
+      const index = newMessages[newMessages.length - 1].content.search("TASK_DONE");
+      if (index > -1) {
+        setSurveyFinished(true);
+        const assistantMessage = {
+          role: newMessages[newMessages.length - 1].role,
+          content: newMessages[newMessages.length - 1].content.slice(0, index)
+        };
+        setMessages([...prevMessages, userMessage, assistantMessage]);
+        saveMessages([...prevMessages, userMessage, assistantMessage]);
+      } else {
+        setMessages([...newMessages]);
+      }
     } catch (error) {
       console.log(`error: failed to reach openai (${error})`);
       setMessages(messages.slice(0, messages.length)); // pop userMessage
@@ -77,6 +97,26 @@ function App() {
     });
   }
 
+  const saveMessages = async (messages) => {
+    let id = uuid();
+    try {
+      await fetch("./.netlify/functions/saveMessages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          session: id,
+          messages: messages.slice(1), // skip initial system message
+        })
+      })
+      setSessionId(id);
+    } catch (error) {
+      console.log(`error: failed to save messages (${error})`);
+      setErrorState({databaseError: "yes"});
+    }
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -84,14 +124,19 @@ function App() {
           <p>Welcome to SurveyGPT!</p>
           <Messages
             messages={messages} />
-          <Input
+          {!surveyFinished && (<Input
             setMessages={setMessages}
             setUserMessage={setUserMessage}
             userMessage={userMessage}
             submitUserMessage={submitUserMessage}
+            saveMessages={saveMessages}
             isLoading={isLoading}
             errorState={errorState}
-            setErrorState={setErrorState} />  
+            setErrorState={setErrorState} />)}
+          {sessionId !== null && (<Typography variant="body2" marginTop={5}>
+              <em>Thank you for completing the survey! Your survey identification code is: </em>{sessionId}.
+            </Typography>
+          )}
         </Container>
       </header>
       <footer className="App-footer">
@@ -228,6 +273,30 @@ function Input(props) {
           <Grid item xs={1}></Grid>
         </Grid>
       )}
+
+      {/* <Grid
+        container
+        sx={{
+          'paddingTop': 2,
+        }}
+        spacing={2}>
+        
+        <Grid item xs={5}></Grid>
+        <Grid
+          item
+          xs={2}>
+            <FormControl fullWidth>
+              <Button
+                variant="contained"
+                onClick={props.saveMessages}>
+                  Submit
+              </Button>
+            </FormControl>
+        </Grid>
+        <Grid item xs={5}></Grid>
+
+      </Grid> */}
+      
     </div>
   )
 }
