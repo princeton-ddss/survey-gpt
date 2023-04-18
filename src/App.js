@@ -57,8 +57,7 @@ function App() {
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ errorState, setErrorState ] = React.useState({networkError: null});
-  const [ surveyFinished, setSurveyFinished ] = React.useState(false);
-  const [ sessionId, setSessionId ] = React.useState(null);
+  const [ sessionId, setSessionId ] = React.useState(-1);
 
   const submitUserMessage = async () => {
     setIsLoading(true);
@@ -81,7 +80,6 @@ function App() {
         };
         setMessages([...prevMessages, userMessage, assistantMessage]);
         saveMessages([...prevMessages, userMessage, assistantMessage]);
-        setSurveyFinished(true);
       } else {
         setMessages([...newMessages]);
       }
@@ -124,7 +122,7 @@ function App() {
           <p>Welcome to SurveyGPT!</p>
           <Messages
             messages={messages} />
-          {!surveyFinished && (<Input
+          {sessionId === -1 && (<Input
             setMessages={setMessages}
             setUserMessage={setUserMessage}
             userMessage={userMessage}
@@ -133,7 +131,7 @@ function App() {
             isLoading={isLoading}
             errorState={errorState}
             setErrorState={setErrorState} />)}
-          {surveyFinished && (<Typography variant="body2" marginTop={5}>
+          {sessionId !== -1 && (<Typography variant="body2" marginTop={5}>
               <em>Thank you for completing the survey! Your survey identification code is: </em>{sessionId}.
             </Typography>
           )}
