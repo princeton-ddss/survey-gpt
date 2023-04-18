@@ -71,13 +71,12 @@ function App() {
       console.log("index=", index);
       if (index > -1) {
         setSurveyFinished(true);
-        console.log(`surveyFinished=${surveyFinished}`);
         const finalMessage = {
           role: newMessages[newMessages.length - 1].role,
           content: newMessages[newMessages.length - 1].content.slice(0, index)
         };
         setMessages([...messages, userMessage, finalMessage]);
-        saveMessages();
+        saveMessages([...messages, userMessage, finalMessage]);
       } else {
         setMessages(newMessages);
       }
@@ -93,7 +92,7 @@ function App() {
     });
   }
 
-  const saveMessages = async () => {
+  const saveMessages = async (messages) => {
     setIsLoading(true);
     try {
       await fetch("./.netlify/functions/saveMessages", {
