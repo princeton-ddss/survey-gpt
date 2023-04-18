@@ -14,6 +14,7 @@ import { Alert } from '@mui/material';
 import { IconButton } from '@mui/material';
 import { Collapse } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { uuid } from 'uuidv4';
 import assistant from './assistant.png';
 
 
@@ -101,7 +102,7 @@ function App() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          respondent: "test",
+          session: uuid(),
           messages: messages.slice(1), // skip initial system message
         })
       })
