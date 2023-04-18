@@ -14,7 +14,7 @@ import { Alert } from '@mui/material';
 import { IconButton } from '@mui/material';
 import { Collapse } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import assistant from './assistant.png';
 
 
