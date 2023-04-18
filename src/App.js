@@ -57,7 +57,8 @@ function App() {
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ errorState, setErrorState ] = React.useState({networkError: null});
-  const [ sessionId, setSessionId ] = React.useState(-1);
+  const [ surveyFinished, setSurveyFinished ] = React.useState(false);
+  const [ sessionId, setSessionId ] = React.useState(null);
 
   const submitUserMessage = async () => {
     setIsLoading(true);
@@ -74,6 +75,7 @@ function App() {
       const newMessages = await response.json();
       const index = newMessages[newMessages.length - 1].content.search("TASK_DONE");
       if (index > -1) {
+        setSurveyFinished(true);
         const assistantMessage = {
           role: newMessages[newMessages.length - 1].role,
           content: newMessages[newMessages.length - 1].content.slice(0, index)
@@ -122,7 +124,7 @@ function App() {
           <p>Welcome to SurveyGPT!</p>
           <Messages
             messages={messages} />
-          {sessionId === -1 && (<Input
+          {!surveyFinished && (<Input
             setMessages={setMessages}
             setUserMessage={setUserMessage}
             userMessage={userMessage}
@@ -131,7 +133,7 @@ function App() {
             isLoading={isLoading}
             errorState={errorState}
             setErrorState={setErrorState} />)}
-          {sessionId !== -1 && (<Typography variant="body2" marginTop={5}>
+          {sessionId !== null && (<Typography variant="body2" marginTop={5}>
               <em>Thank you for completing the survey! Your survey identification code is: </em>{sessionId}.
             </Typography>
           )}
