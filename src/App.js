@@ -78,7 +78,7 @@ function App() {
         setMessages([...messages, finalMessage]);
         saveMessages();
       } else {
-        setMessages([...newMessages]);
+        setMessages(newMessages);
       }
     } catch (error) {
       console.log(`error: failed to reach openai (${error})`);
