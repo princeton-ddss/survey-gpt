@@ -119,7 +119,7 @@ function App() {
           <p>Welcome to SurveyGPT!</p>
           <Messages
             messages={messages} />
-          <Input
+          {!surveyFinished && (<Input
             setMessages={setMessages}
             setUserMessage={setUserMessage}
             userMessage={userMessage}
@@ -127,7 +127,7 @@ function App() {
             saveMessages={saveMessages}
             isLoading={isLoading}
             errorState={errorState}
-            setErrorState={setErrorState} />  
+            setErrorState={setErrorState} />)} 
         </Container>
       </header>
       <footer className="App-footer">
