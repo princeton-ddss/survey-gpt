@@ -67,7 +67,7 @@ function App() {
       const newMessages = await response.json();
       const index = newMessages[newMessages.length - 1].content.search("[END]");
       if (index > -1) {
-        console.log(`Survey finished! (${newMessages[newMessages.length - 1]})`);
+        console.log(`surveyFinished=${surveyFinished} (${newMessages[newMessages.length - 1]})`);
         setSurveyFinished(true);
         const finalMessage = {
           role: newMessages[newMessages.length - 1].role,
