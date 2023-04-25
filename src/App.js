@@ -25,8 +25,7 @@ import assistant from './assistant.png';
 
 const instructions = {
   role: "system",
-  content:`
-<questionnaire>
+  content:`<questionnaire>
 	<section=1 instructions="Ask one item at a time in the following battery. Do not ask the full battery at once.">
 		When you decide whether something is right or wrong, to what extent are the following considerations relevant to your thinking?
 		<item 1>
@@ -84,7 +83,7 @@ const instructions = {
 
 	Once you have asked all questions, conclude by asking me if I have any more questions for you. If I don't have any more questions for you, inform me (the respondent) that the survey is complete and conclude with the special token <SURVEY_ENDED>
 </instructions>
-  `,
+`,
 }
 
 const initMessage = {
