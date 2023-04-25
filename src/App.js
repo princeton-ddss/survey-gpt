@@ -104,20 +104,21 @@ function App() {
     setIsLoading(true);
     const prevMessages = [...messages];
     setMessages([...prevMessages, userMessage]);
-    try {
-      const response = await fetch("./.netlify/functions/submitUserMessage", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify([...messages, userMessage]),
-      });
+    const response = await fetch("./.netlify/functions/submitUserMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify([...prevMessages, userMessage]),
+    });
+    setIsLoading(false);
+    if (response.ok) {
       const newMessages = await response.json();
       const index = newMessages[newMessages.length - 1].content.search("<SURVEY_ENDED>");
       if (index > -1) {
         setSurveyFinished(true);
         const assistantMessage = {
-          role: newMessages[newMessages.length - 1].role,
+          role: "assistant",
           content: newMessages[newMessages.length - 1].content.slice(0, index)
         };
         setMessages([...prevMessages, userMessage, assistantMessage]);
@@ -125,16 +126,17 @@ function App() {
       } else {
         setMessages([...newMessages]);
       }
-    } catch (error) {
-      console.log(`error: failed to reach openai (${error})`);
-      setMessages(messages.slice(0, messages.length)); // pop userMessage
-      setErrorState({networkError: "yes"});
+      setUserMessage({
+        role: "user",
+        content: "",
+      });
+    } else {
+      const message = await response.text();
+      setMessages([...prevMessages]); // rollback user message
+      setErrorState({
+        networkError: message.split('\n')[0],
+      });
     }
-    setIsLoading(false);
-    setUserMessage({
-      role: "user",
-      content: "",
-    });
   }
 
   const saveMessages = async (messages) => {
@@ -221,10 +223,7 @@ function Input(props) {
       <Grid
         container
         columns={24}
-        sx={{
-          'paddingTop': 2,
-        }}
-        spacing={2}>
+        spacing={0}>
         
         <Grid item xs={1}></Grid>
         <Grid
@@ -353,9 +352,7 @@ function NetworkError(props) {
               color="inherit"
               size="small"
               onClick={() => {
-                console.log(props.errorState);
                 props.setErrorState({networkError: null});
-                console.log(props.errorState);
               }}
             >
               <CloseIcon fontSize="inherit" />
@@ -364,7 +361,7 @@ function NetworkError(props) {
           severity="error"
           sx={{ mb: 2 }}
         >
-          Error {props.errorState.networkError}
+          {props.errorState.networkError}
         </Alert>
       </Collapse>
     </Box>
