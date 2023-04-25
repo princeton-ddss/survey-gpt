@@ -87,17 +87,14 @@ const instructions = {
   `,
 }
 
-/*
 const initMessage = {
   role: "assistant",
-  content: "Hello! I'm SurveyGPT, an automated survey assistant based on ChatGPT. I'm going to be asking you a few questions about your political opinions today. Are you ready to begin?",
+  content: "Hello! I am SurveyGPT, an artificial intelligence designed to conduct surveys and interviews in a conversational format. Are you ready to begin the survey?",
 }
-*/
 
 function App() {
 
-  // const [ messages, setMessages ] = React.useState([instructions, initMessage]);
-  const [ messages, setMessages ] = React.useState([instructions]);
+  const [ messages, setMessages ] = React.useState([instructions, initMessage]);
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ errorState, setErrorState ] = React.useState({networkError: null});
