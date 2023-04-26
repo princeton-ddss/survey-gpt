@@ -20,6 +20,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { v4 as uuid } from 'uuid';
+import { retry } from '@lifeomic/attempt';
 import assistant from './assistant.png';
 
 
@@ -104,15 +105,41 @@ function App() {
     setIsLoading(true);
     const prevMessages = [...messages];
     setMessages([...prevMessages, userMessage]);
-    const response = await fetch("./.netlify/functions/submitUserMessage", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify([...prevMessages, userMessage]),
-    });
-    setIsLoading(false);
+    let response;
+    try {
+      response = await retry(async () => {
+        console.log("attempting submitUserMessage...");
+        const res = await fetch("./.netlify/functions/submitUserMessage", {
+          method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify([...prevMessages, userMessage]),
+        });
+        if (!res.ok) {
+          const message = await res.text();
+          const error = new Error(message.split('\n')[0]);
+          error.status = res.status;
+          throw error
+        }
+        return res;
+      }, {
+        delay: 1000,
+        factor: 2,
+        maxAttempts: 3
+      });
+    } catch (error) {
+      response = {
+        ok: false,
+      }
+      setIsLoading(false);
+      setMessages([...prevMessages]);
+      setErrorState({
+        networkError: error.message
+      });
+    }
     if (response.ok) {
+      setIsLoading(false);
       const newMessages = await response.json();
       const index = newMessages[newMessages.length - 1].content.search("<SURVEY_ENDED>");
       if (index > -1) {
@@ -129,12 +156,6 @@ function App() {
       setUserMessage({
         role: "user",
         content: "",
-      });
-    } else {
-      const message = await response.text();
-      setMessages([...prevMessages]); // rollback user message
-      setErrorState({
-        networkError: message.split('\n')[0],
       });
     }
   }
