@@ -99,7 +99,7 @@ function App() {
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ error, setError ] = React.useState(null);
   const [ surveyFinished, setSurveyFinished ] = React.useState(false);
-  const [ sessionId, setSessionId ] = React.useState(null);
+  const [ surveyId, setSurveyId ] = React.useState(null);
 
   const submitUserMessage = async () => {
     setIsLoading(true);
@@ -166,11 +166,11 @@ function App() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          session: id,
+          id: id,
           messages: messages.slice(1), // skip initial system message
         })
       })
-      setSessionId(id);
+      setSurveyId(id);
     } catch (error) {
       console.log(`error: failed to save messages (${error})`);
       setError({databaseError: "yes"});
@@ -193,8 +193,8 @@ function App() {
             isLoading={isLoading}
             error={error}
             setError={setError} />)}
-          {sessionId !== null && (<Typography variant="body2" marginTop={5}>
-              <em>Thank you for completing the survey! Your survey identification code is: </em>{sessionId}.
+          {surveyId !== null && (<Typography variant="body2" marginTop={5}>
+              <em>Thank you for completing the survey! Help us improve SurveyGPT by leaving us <a target="_blank" rel="noreferrer" href={`https://survey-gpt-feedback.netlify.app/survey/${surveyId}`}>feedback</a>.</em>
             </Typography>
           )}
         </Container>
@@ -290,24 +290,6 @@ function Input(props) {
             </FormControl>
         </Grid>
         <Grid item xs={1}></Grid>
-
-        {/* <Grid
-          item
-          xs={1}>
-            <FormControl fullWidth>
-              <Button
-                onClick={() => {
-                  props.setMessages([]);
-                  props.setUserMessage({
-                    role: "user",
-                    content: "",
-                  });
-                }}
-                variant='contained'>
-                Reset
-              </Button>
-            </FormControl>
-          </Grid> */}
 
       </Grid>
       
