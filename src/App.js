@@ -103,6 +103,7 @@ function App() {
 
   const submitUserMessage = async () => {
     setIsLoading(true);
+    setError(null);
     const prevMessages = [...messages];
     setMessages([...prevMessages, userMessage]);
     let response;
