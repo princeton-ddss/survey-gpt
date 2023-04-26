@@ -20,6 +20,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { v4 as uuid } from 'uuid';
+import { retry } from '@lifeomic/attempt';
 import assistant from './assistant.png';
 
 
@@ -96,28 +97,52 @@ function App() {
   const [ messages, setMessages ] = React.useState([instructions, initMessage]);
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
-  const [ errorState, setErrorState ] = React.useState({networkError: null});
+  const [ error, setError ] = React.useState(null);
   const [ surveyFinished, setSurveyFinished ] = React.useState(false);
   const [ sessionId, setSessionId ] = React.useState(null);
 
   const submitUserMessage = async () => {
     setIsLoading(true);
+    setError(null);
     const prevMessages = [...messages];
     setMessages([...prevMessages, userMessage]);
+    let response;
     try {
-      const response = await fetch("./.netlify/functions/submitUserMessage", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify([...messages, userMessage]),
+      response = await retry(async () => {
+        console.log("attempting submitUserMessage...");
+        const res = await fetch("./.netlify/functions/submitUserMessage", {
+          method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify([...prevMessages, userMessage]),
+        });
+        if (!res.ok) {
+          const message = await res.text();
+          const error = new Error(message.split('\n')[0]);
+          error.status = res.status;
+          throw error
+        }
+        return res;
+      }, {
+        delay: 1000,
+        factor: 2,
+        maxAttempts: 3
       });
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+      setMessages([...prevMessages]);
+      setError(error);
+    }
+    if (response) {
+      setIsLoading(false);
       const newMessages = await response.json();
       const index = newMessages[newMessages.length - 1].content.search("<SURVEY_ENDED>");
       if (index > -1) {
         setSurveyFinished(true);
         const assistantMessage = {
-          role: newMessages[newMessages.length - 1].role,
+          role: "assistant",
           content: newMessages[newMessages.length - 1].content.slice(0, index)
         };
         setMessages([...prevMessages, userMessage, assistantMessage]);
@@ -125,16 +150,11 @@ function App() {
       } else {
         setMessages([...newMessages]);
       }
-    } catch (error) {
-      console.log(`error: failed to reach openai (${error})`);
-      setMessages(messages.slice(0, messages.length)); // pop userMessage
-      setErrorState({networkError: "yes"});
+      setUserMessage({
+        role: "user",
+        content: "",
+      });
     }
-    setIsLoading(false);
-    setUserMessage({
-      role: "user",
-      content: "",
-    });
   }
 
   const saveMessages = async (messages) => {
@@ -153,7 +173,7 @@ function App() {
       setSessionId(id);
     } catch (error) {
       console.log(`error: failed to save messages (${error})`);
-      setErrorState({databaseError: "yes"});
+      setError({databaseError: "yes"});
     }
   }
 
@@ -171,8 +191,8 @@ function App() {
             submitUserMessage={submitUserMessage}
             saveMessages={saveMessages}
             isLoading={isLoading}
-            errorState={errorState}
-            setErrorState={setErrorState} />)}
+            error={error}
+            setError={setError} />)}
           {sessionId !== null && (<Typography variant="body2" marginTop={5}>
               <em>Thank you for completing the survey! Your survey identification code is: </em>{sessionId}.
             </Typography>
@@ -221,19 +241,16 @@ function Input(props) {
       <Grid
         container
         columns={24}
-        sx={{
-          'paddingTop': 2,
-        }}
-        spacing={2}>
+        spacing={0}>
         
         <Grid item xs={1}></Grid>
         <Grid
           item
           xs={22}>
             <FormControl fullWidth>
-              <NetworkError 
-                errorState={props.errorState}
-                setErrorState={props.setErrorState} />
+              <ErrorMessage 
+                error={props.error}
+                setError={props.setError} />
             </FormControl>
         </Grid>
         <Grid item xs={1}></Grid>
@@ -313,39 +330,16 @@ function Input(props) {
           <Grid item xs={1}></Grid>
         </Grid>
       )}
-
-      {/* <Grid
-        container
-        sx={{
-          'paddingTop': 2,
-        }}
-        spacing={2}>
-        
-        <Grid item xs={5}></Grid>
-        <Grid
-          item
-          xs={2}>
-            <FormControl fullWidth>
-              <Button
-                variant="contained"
-                onClick={props.saveMessages}>
-                  Submit
-              </Button>
-            </FormControl>
-        </Grid>
-        <Grid item xs={5}></Grid>
-
-      </Grid> */}
       
     </div>
   )
 }
 
-function NetworkError(props) {
+function ErrorMessage(props) {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Collapse in={props.errorState.networkError !== null}>
+      <Collapse in={props.error !== null}>
         <Alert
           action={
             <IconButton
@@ -353,9 +347,7 @@ function NetworkError(props) {
               color="inherit"
               size="small"
               onClick={() => {
-                console.log(props.errorState);
-                props.setErrorState({networkError: null});
-                console.log(props.errorState);
+                props.setError(null);
               }}
             >
               <CloseIcon fontSize="inherit" />
@@ -364,7 +356,7 @@ function NetworkError(props) {
           severity="error"
           sx={{ mb: 2 }}
         >
-          Error {props.errorState.networkError}
+          {props.error ? props.error.message : ""}
         </Alert>
       </Collapse>
     </Box>
