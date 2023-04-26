@@ -200,7 +200,7 @@ function App() {
         </Container>
       </header>
       <footer className="App-footer">
-        <a href="https://www.flaticon.com/free-icons/avatar" title="avatar icons">Avatar icons created by Freepik - Flaticon</a>
+        Icons created by <a href="https://www.flaticon.com/free-icons/avatar" title="avatar icons">Freepik - Flaticon</a>
       </footer>
     </div>
   );
