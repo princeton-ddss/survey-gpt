@@ -114,8 +114,7 @@ function App() {
             headers: {
               "Content-Type": "application/json",
             },
-            // body: JSON.stringify([...prevMessages, userMessage]),
-            body: JSON.stringify([]),
+            body: JSON.stringify([...prevMessages, userMessage]),
         });
         if (!res.ok) {
           const message = await res.text();
@@ -330,29 +329,6 @@ function Input(props) {
           <Grid item xs={1}></Grid>
         </Grid>
       )}
-
-      {/* <Grid
-        container
-        sx={{
-          'paddingTop': 2,
-        }}
-        spacing={2}>
-        
-        <Grid item xs={5}></Grid>
-        <Grid
-          item
-          xs={2}>
-            <FormControl fullWidth>
-              <Button
-                variant="contained"
-                onClick={props.saveMessages}>
-                  Submit
-              </Button>
-            </FormControl>
-        </Grid>
-        <Grid item xs={5}></Grid>
-
-      </Grid> */}
       
     </div>
   )
