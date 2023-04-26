@@ -97,7 +97,7 @@ function App() {
   const [ messages, setMessages ] = React.useState([instructions, initMessage]);
   const [ userMessage, setUserMessage ] = React.useState({role: "user", content: ""});
   const [ isLoading, setIsLoading ] = React.useState(false);
-  const [ errorState, setErrorState ] = React.useState({networkError: null});
+  const [ error, setError ] = React.useState(null);
   const [ surveyFinished, setSurveyFinished ] = React.useState(false);
   const [ sessionId, setSessionId ] = React.useState(null);
 
@@ -114,7 +114,8 @@ function App() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify([...prevMessages, userMessage]),
+            // body: JSON.stringify([...prevMessages, userMessage]),
+            body: JSON.stringify([]),
         });
         if (!res.ok) {
           const message = await res.text();
@@ -129,16 +130,12 @@ function App() {
         maxAttempts: 3
       });
     } catch (error) {
-      response = {
-        ok: false,
-      }
+      console.log(error);
       setIsLoading(false);
       setMessages([...prevMessages]);
-      setErrorState({
-        networkError: error.message
-      });
+      setError(error);
     }
-    if (response.ok) {
+    if (response) {
       setIsLoading(false);
       const newMessages = await response.json();
       const index = newMessages[newMessages.length - 1].content.search("<SURVEY_ENDED>");
@@ -176,7 +173,7 @@ function App() {
       setSessionId(id);
     } catch (error) {
       console.log(`error: failed to save messages (${error})`);
-      setErrorState({databaseError: "yes"});
+      setError({databaseError: "yes"});
     }
   }
 
@@ -194,8 +191,8 @@ function App() {
             submitUserMessage={submitUserMessage}
             saveMessages={saveMessages}
             isLoading={isLoading}
-            errorState={errorState}
-            setErrorState={setErrorState} />)}
+            error={error}
+            setError={setError} />)}
           {sessionId !== null && (<Typography variant="body2" marginTop={5}>
               <em>Thank you for completing the survey! Your survey identification code is: </em>{sessionId}.
             </Typography>
@@ -251,9 +248,9 @@ function Input(props) {
           item
           xs={22}>
             <FormControl fullWidth>
-              <NetworkError 
-                errorState={props.errorState}
-                setErrorState={props.setErrorState} />
+              <ErrorMessage 
+                error={props.error}
+                setError={props.setError} />
             </FormControl>
         </Grid>
         <Grid item xs={1}></Grid>
@@ -361,11 +358,11 @@ function Input(props) {
   )
 }
 
-function NetworkError(props) {
+function ErrorMessage(props) {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Collapse in={props.errorState.networkError !== null}>
+      <Collapse in={props.error !== null}>
         <Alert
           action={
             <IconButton
@@ -373,7 +370,7 @@ function NetworkError(props) {
               color="inherit"
               size="small"
               onClick={() => {
-                props.setErrorState({networkError: null});
+                props.setError(null);
               }}
             >
               <CloseIcon fontSize="inherit" />
@@ -382,7 +379,7 @@ function NetworkError(props) {
           severity="error"
           sx={{ mb: 2 }}
         >
-          {props.errorState.networkError}
+          {props.error ? props.error.message : ""}
         </Alert>
       </Collapse>
     </Box>
