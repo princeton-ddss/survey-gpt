@@ -99,7 +99,7 @@ function App() {
   const [ isLoading, setIsLoading ] = React.useState(false);
   const [ error, setError ] = React.useState(null);
   const [ surveyFinished, setSurveyFinished ] = React.useState(false);
-  const [ surveyId, setSurveyId ] = React.useState(null);
+  const [ surveyId ] = React.useState(uuid());
 
   const submitUserMessage = async () => {
     setIsLoading(true);
@@ -115,7 +115,10 @@ function App() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify([...prevMessages, userMessage]),
+            body: JSON.stringify({
+              surveyId: surveyId,
+              messages: [...prevMessages, userMessage],
+            }),
         });
         if (!res.ok) {
           const message = await res.text();
@@ -158,7 +161,7 @@ function App() {
   }
 
   const saveMessages = async (messages) => {
-    let id = uuid();
+    // let id = uuid();
     try {
       await fetch("./.netlify/functions/saveMessages", {
         method: "POST",
@@ -166,11 +169,11 @@ function App() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          id: id,
+          id: surveyId,
           messages: messages.slice(1), // skip initial system message
         })
       })
-      setSurveyId(id);
+      // setSurveyId(id);
     } catch (error) {
       console.log(`error: failed to save messages (${error})`);
       setError({databaseError: "yes"});
@@ -184,19 +187,18 @@ function App() {
           <p>Welcome to SurveyGPT!</p>
           <Messages
             messages={messages} />
-          {!surveyFinished && (<Input
-            setMessages={setMessages}
-            setUserMessage={setUserMessage}
-            userMessage={userMessage}
-            submitUserMessage={submitUserMessage}
-            saveMessages={saveMessages}
-            isLoading={isLoading}
-            error={error}
-            setError={setError} />)}
-          {surveyId !== null && (<Typography variant="body2" marginTop={5}>
+          {surveyFinished ? (<Typography variant="body2" marginTop={5}>
               <em>Thank you for completing the survey! Help us improve SurveyGPT by leaving us <a target="_blank" rel="noreferrer" href={`https://survey-gpt-feedback.netlify.app/survey/${surveyId}`}>feedback</a>.</em>
-            </Typography>
-          )}
+            </Typography>) : (<Input
+              setMessages={setMessages}
+              setUserMessage={setUserMessage}
+              userMessage={userMessage}
+              submitUserMessage={submitUserMessage}
+              saveMessages={saveMessages}
+              isLoading={isLoading}
+              error={error}
+              setError={setError} />)
+          }
         </Container>
       </header>
       <footer className="App-footer">

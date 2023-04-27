@@ -7,27 +7,30 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 exports.handler = async function (event, context) {
-  const messages = JSON.parse(event.body);
+  const data = JSON.parse(event.body);
+  const messages = data.messages;
+  const surveyId = data.surveyId;
+  const userMessage = messages[messages.length - 1]
+  console.log(`[${surveyId}]: `, userMessage);
   try {
     const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: messages,
     });
-    console.log("1")
     const assistantMessage = response.data.choices[0].message;
+    console.log(`[${surveyId}]: `, assistantMessage);
     return {
       statusCode: 200,
       body: JSON.stringify([...messages, assistantMessage]),
     }
   } catch (error) {
+    console.log(`[${surveyId}]: `, error.message);
     if (error.response) {
-      console.log("2")
       return {
         statusCode: error.response.status,
         body: `OpenAIError: ${error.message}`,
       }
     } else {
-      console.log(error)
       return {
         statusCode: error.status,
         body: `OpenAIError: ${error.message}`,
