@@ -216,9 +216,9 @@ function Messages(props) {
   return (
     <div className="Messages">
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {props.messages.slice(1).map((message) =>
+        {props.messages.slice(1).map((message, index) =>
           <ListItem
-            key={message.content}
+            key={index}
             alignItems='flex-start'
             sx={{
               bgcolor: message.role === "assistant" ? assistantBackground : userBackground
