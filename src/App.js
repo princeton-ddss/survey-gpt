@@ -82,7 +82,7 @@ Start by telling me what this survey is about and whether I am happy to take the
 
 const initMessage = {
   role: "assistant",
-  content: "Hello! I am SurveyGPT, an artificial intelligence designed to conduct surveys and interviews in a conversational format. Today I'm going to ask you questions about moral judgments. Are you ready to begin the survey?",
+  content: "Hello! I am SurveyGPT, an artificial intelligence designed to conduct surveys and interviews in a conversational format.\nToday I'm going to ask you about moral judgments. Are you ready to begin the first question?",
 }
 
 function App() {
