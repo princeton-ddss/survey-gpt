@@ -224,11 +224,11 @@ function Messages(props) {
               bgcolor: message.role === "assistant" ? assistantBackground : userBackground
             }}>
             <ListItemAvatar>
-                <Avatar alt={message.role.toUpperCase()} src={message.role === "assistant" ? assistant : null}/>
+              <Avatar alt={message.role.toUpperCase()} src={message.role === "assistant" ? assistant : null}/>
             </ListItemAvatar>
-              <ListItemText
-                primary={message.content}>
-              </ListItemText>
+            <ListItemText
+              primary={message.content}>
+            </ListItemText>
           </ListItem>
         )}
         {props.isLoading && (
