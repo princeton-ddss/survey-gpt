@@ -154,7 +154,7 @@ function App() {
             isLoading={isLoading}
             messages={messages} />
           {surveyFinished ? (<Typography variant="body2" marginTop={5}>
-              <em>Thank you for completing the survey! Help us improve SurveyGPT by leaving us <a target="_blank" rel="noreferrer" href={`https://survey-gpt-feedback.netlify.app/survey/${surveyId}`}>feedback</a>.</em>
+              <em>Thank you for completing the survey!</em>
             </Typography>) : (<Input
               setMessages={setMessages}
               setUserMessage={setUserMessage}
