@@ -21,4 +21,4 @@ You may also see any lint errors in the console.
 ### Netlify
 
 
-_This branch is deploying the moral foundations survey_.
+_This branch is deploying the moral foundations survey from a netlify preview._
